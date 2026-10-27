@@ -1,0 +1,71 @@
+@startuml erd
+hide circle
+skinparam linetype ortho
+
+entity users {
+  * id : bigint <<PK>>
+  --
+  * first_name : varchar(255)
+  * last_name : varchar(255)
+  * username : varchar(255) <<unique>>
+  * email : varchar(255) <<unique>>
+  email_verified_at : timestamp
+  * password : varchar(255)
+  * role : integer
+  profile_picture : varchar(255)
+  * gear : json
+  remember_token : varchar(100)
+  created_at : timestamp
+  updated_at : timestamp
+}
+
+entity categories {
+  * id : bigint <<PK>>
+  --
+  * name : varchar(255) <<unique>>
+  description : text
+  created_at : timestamp
+  updated_at : timestamp
+}
+
+entity category_photo {
+  * category_id : bigint <<PK, FK>>
+  * photo_id : bigint <<PK, FK>>
+}
+
+entity photos {
+  * id : bigint <<PK>>
+  --
+  * user_id : bigint <<FK>>
+  --
+  * title : varchar(255)
+  description : varchar(255)
+  * image_path : varchar(255)
+  --
+  location : varchar(255)
+  camera : varchar(255)
+  lens : varchar(255)
+  focal_length : varchar(50)
+  aperture : varchar(50)
+  shutter_speed : varchar(50)
+  iso : integer
+  taken_at : date
+  --
+  * is_visible : boolean
+  created_at : timestamp
+  updated_at : timestamp
+}
+
+' users 1 - * photos: a user uploads one or more photos, a photo belongs to exactly one user (photos.user_id)
+' categories * - * photos via category_photo: a photo can have multiple categories and a category can contain multiple photos (category_photo.category_id, category_photo.photo_id)
+
+'In de users tabel kan de gebruiker 1 of meer foto's aanmaken en toevoegen die uiteraard behoord tot die ene user die het heeft aangemaakt (photos.user_id) '
+'
+
+
+
+users ||--{ photos
+categories ||--o{ category_photo
+photos ||--o{ category_photo
+
+@enduml
