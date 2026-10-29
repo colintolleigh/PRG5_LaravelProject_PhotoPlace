@@ -4,19 +4,18 @@ namespace App\Http\Controllers;
 
 use App\Models\Photo;
 use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 class PhotoController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(): View
     {
-        $photo = new Photo();
-        $photo -> title = 'Kyoto streets';
-        $photo -> iso = 200;
+        $photos = Photo::latest('taken_at')->get();
 
-        return view('photos.index', compact('photo'));
+        return view('photos.index', compact('photos'));
     }
 
     /**
@@ -38,11 +37,9 @@ class PhotoController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Photo $photo)
+    public function show(Photo $photo): View
     {
-        //
-//        return view('photos.show', compact('photo'));
-        dd($photo);
+        return view('photos.show', compact('photo'));
     }
 
     /**
