@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Photo;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -18,9 +19,10 @@ class PhotoFactory extends Factory
     public function definition(): array
     {
         return [
+            'user_id' => User::factory(),
             'title' => fake()->sentence(3),
             'description' => fake()->sentence(),
-            'own_image_path' => 'photos/'.fake()->slug(2).'.jpg',
+            'image_path' => 'photos/'.fake()->slug(2).'.jpg',
             'location' => fake()->city().', '.fake()->country(),
             'camera' => 'Fujifilm X-T5',
             'lens' => 'XF 23mm f/1.4',
@@ -29,6 +31,17 @@ class PhotoFactory extends Factory
             'shutter_speed' => '1/250',
             'iso' => fake()->randomElement([100, 200, 400, 800, 1600]),
             'taken_at' => fake()->date(),
+            'is_visible' => true,
         ];
+    }
+
+    /**
+     * Indicate that the photo is hidden from the public overview.
+     */
+    public function hidden(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'is_visible' => false,
+        ]);
     }
 }

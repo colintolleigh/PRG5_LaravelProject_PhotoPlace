@@ -31,15 +31,23 @@ class RegisteredUserController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
-            'name' => ['required', 'string', 'max:255'],
+            'first_name' => ['required', 'string', 'max:255'],
+            'last_name' => ['required', 'string', 'max:255'],
+            'username' => ['required', 'string', 'max:255', 'alpha_dash', 'unique:'.User::class],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'profile_picture' => ['nullable', 'image', 'max:5120'],
+            'gear' => ['nullable', 'string', 'max:2000'],
         ]);
 
         $user = User::create([
-            'name' => $request->name,
+            'first_name' => $request->first_name,
+            'last_name' => $request->last_name,
+            'username' => $request->username,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'profile_picture' => $request->file('profile_picture')?->store('profile-pictures', 'public'),
+            'gear' => $this->parseGear($request->input('gear')),
         ]);
 
         event(new Registered($user));
@@ -47,5 +55,19 @@ class RegisteredUserController extends Controller
         Auth::login($user);
 
         return redirect(route('dashboard', absolute: false));
+    }
+
+    /**
+     * Turn the gear textarea (one item per line) into a list of gear items.
+     *
+     * @return list<string>
+     */
+    private function parseGear(?string $gear): array
+    {
+        return collect(preg_split('/\r\n|\r|\n/', (string) $gear))
+            ->map(fn (string $item): string => trim($item))
+            ->filter()
+            ->values()
+            ->all();
     }
 }
